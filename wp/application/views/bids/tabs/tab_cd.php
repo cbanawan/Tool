@@ -1,0 +1,1 @@
+<?php $this->load->view('bids/close_projects_approved'); ?>

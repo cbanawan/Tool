@@ -1,0 +1,130 @@
+<?php
+if ($won_bids && !empty($won_bids)) {
+    ?>
+    <table id="tbl_conv_detail_bids" class="table table-striped table-bordered table-advance table-hover">
+        <thead>
+            <tr>
+                <th>Researcher</th>
+                <th>Project Name</th>
+                <th>Segment Name</th>
+                <th>Date</th>
+                <th>CPC</th>
+                <th>Ncomplete</th>
+                <th>Estimated Cost</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            foreach ($won_bids as $conversation_bids) {
+                $sub_bid_detail = $conversation_bids->sub_bid;
+                $segment_delete = $conversation_bids->segment_delete;
+                ?>
+                <tr>
+                    <td><?php echo $conversation_bids->company_name; ?></td>
+                    <td><?php echo $conversation_bids->project_id . "_" . $conversation_bids->project_name; ?></td>
+                    <td><?php echo $this->common_function->get_segment_format($conversation_bids->country_name, $project_segments[$conversation_bids->project_segments], $conversation_bids->segment_name, $conversation_bids->bid_status, $segment_delete->is_delete); ?></td>
+                    <td><?php echo date(DATETIME_DISPLAY_FORMAT,strtotime($conversation_bids->bid_createddate)); ?></td>
+                    <td><?php echo $conversation_bids->bid_cpc; ?></td>
+                    <td><?php echo $conversation_bids->bid_ncomplete; ?></td>
+                    <td><?php echo (intval($conversation_bids->bid_cpc) * intval($conversation_bids->bid_ncomplete)) + intval($conversation_bids->bid_setup_cost); ?></td>
+                    <td>
+                        <a href="javascript:void(0);" class="btn purple" id="btn_seedetail_<?php echo $conversation_bids->project_id; ?>_<?php echo $conversation_bids->bid_id; ?>_<?php echo $conversation_bids->project_country_id; ?>" >See Detail</a>                        
+                    </td>
+                </tr>
+                <tr style="display: none;" id="detail_container_<?php echo $conversation_bids->project_id; ?>_<?php echo $conversation_bids->bid_id; ?>">
+                    <td colspan="8">
+                        <div class="col-md-1"><strong>IR:</strong>
+                            <span><?php echo $conversation_bids->project_ir; ?></span>
+                        </div>                        
+                        <div class="col-md-1"><strong>LOI:</strong>
+                            <span><?php echo $conversation_bids->project_loi; ?></span>
+                        </div>                        
+                        <div class="col-md-2"><strong>Targets:</strong>
+                            <span><?php echo $conversation_bids->project_target; ?></span>
+                        </div>                        
+                        <div class="col-md-3"><strong>Projet Note:</strong>
+                            <span><?php echo $conversation_bids->project_external_note; ?></span>
+                        </div>                        
+                        <div id="detail_<?php echo $conversation_bids->project_id; ?>_<?php echo $conversation_bids->bid_id; ?>"><?php if ($conversation_bids->bid_status != 3) { ?> 
+                                <div class="col-md-5">
+                                    <?php
+                                    $f = 0;
+                                    if (isset($projects_file_detail) && !empty($projects_file_detail)) {
+                                        foreach ($projects_file_detail as $file_val) {
+                                            $f++;
+                                            ?>
+                                            <span class="prj-block-display" id="prj_file_<?php echo $file_val['project_file_id']; ?>">
+                                                <i class="fa fa-file"></i>
+                                                <input type="hidden" value="<?php echo $file_val['project_file']; ?>" name="del_project_file" id="del_project_file_<?php echo $file_val['project_file_id']; ?>">
+                                                <input type="hidden" value="<?php echo $file_val['project_id']; ?>" name="del_project_id" id="del_project_id_<?php echo $file_val['project_file_id']; ?>"><?php echo $f; ?>&nbsp;<strong><a href="<?php echo base_url(UPLOAD . 'projects/' . $file_val['project_id'] . '/' . $file_val['project_file']); ?>" target ="_blank"><?php echo $file_val['project_file_name']; ?></a></strong>&nbsp;&nbsp;<?php echo $file_val['project_file_description']; ?>                                       
+                                            </span>
+                                            <?php
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                                <div class="pull-right">
+                                    <a href="javascript:void(0)" class="btn blue" id="add_bid_details_<?php echo $conversation_bids->bid_id; ?>">Reply</a>
+                                </div>
+                                <div class="clearfix"></div> 
+                            <?php } ?>       
+                            <div class="clearfix"></div> 
+                            <ul class="chats" style="margin-top: 10px;">
+                                <?php
+                                foreach ($sub_bid_detail as $sub_bid) {
+                                    if (intval($sub_bid->bid_type) == 1) {
+                                        $li_class = 'in';
+                                        $bid_user_name = $sub_bid->bid_user;
+                                        $company_detail = $sub_bid->company_detail;
+                                        $bid_company_name = $company_detail['company_name'];
+                                    } else {
+                                        $li_class = 'out';
+                                        $bid_user_name = $sub_bid->bid_user;
+                                        $company_detail = $sub_bid->company_detail;
+                                        $bid_company_name = $company_detail['company_name'];
+                                    }
+                                    ?>
+                                    <li class="<?php echo $li_class; ?>" >
+                                        <div class="message" style="<?php
+                                        if ($sub_bid->is_read == 0) {
+                                            echo 'font-weight:bold;';
+                                        }
+                                        ?>">
+                                            <span class="arrow"></span>
+                                            <a href="javascript:void(0);" class="name" style="<?php
+                                            if ($sub_bid->is_read == 0) {
+                                                echo 'font-weight:bold;';
+                                            }
+                                            ?>"><?php echo $bid_user_name['user_name'] . ' @ ' . $bid_company_name; ?></a>
+                                            <span class="datetime" style="<?php
+                                            if ($sub_bid->is_read == 0) {
+                                                echo 'font-weight:bold;';
+                                            }
+                                            ?>">at <?php echo date(DATETIME_DISPLAY_FORMAT,strtotime($sub_bid->bid_createddate)); ?></span>
+                                            <span class="body" style="padding-top:5px;"><?php echo $this->common_function->get_segment_format($sub_bid->country_name, $project_segments[$sub_bid->project_segments], $sub_bid->segment_name, $sub_bid->bid_status, $segment_delete->is_delete); ?>&nbsp;&nbsp;CPC : <?php
+                                                if ($sub_bid->hide_cpc)
+                                                    echo '--';
+                                                else
+                                                    echo $sub_bid->project_cpc;
+                                                ?>&nbsp;|&nbsp;N Complete : <?php echo $sub_bid->project_ncomplete; ?>&nbsp;|&nbsp;Estimated Cost : <?php
+                                                if ($sub_bid->hide_cpc)
+                                                    echo 'NA';
+                                                else
+                                                    echo ($sub_bid->project_cpc * $sub_bid->project_ncomplete) + $sub_bid->project_setup_cost;
+                                                ?>&nbsp;|&nbsp;Setup Cost: <?php echo $sub_bid->project_setup_cost; ?>&nbsp;|&nbsp;Min. Project Cost: <?php echo $sub_bid->project_management_fee; ?><br /><?php echo $sub_bid->bid_comments; ?></span>
+                                        </div>
+                                    </li>
+                                <?php } ?>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+<?php } else { ?>
+    <div class="alert alert-info">
+        <strong>Empty!</strong> No Bids Found.
+    </div>
+<?php } ?>

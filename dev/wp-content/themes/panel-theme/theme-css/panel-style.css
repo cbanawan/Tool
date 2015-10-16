@@ -1,0 +1,6 @@
+.form-signup{margin-top:50px;}
+.form-group{clear:both;}
+.form-group label{float:left;width:160px;}
+.form-group input.error{border:1px solid red;}
+.form-group input~span{padding-left:10px;color:red;}
+.errorMsg{color:red;margin:10px;}
